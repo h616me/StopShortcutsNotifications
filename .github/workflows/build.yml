@@ -1,0 +1,28 @@
+
+name: Build Rootless Tweak
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    runs-on: macos-13
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Theos
+        uses: Randomblock1/theos-action@v1
+
+      - name: Build Rootless package
+        run: |
+          make clean
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless ARCHS="arm64 arm64e" TARGET=iphone:clang:latest:15.0
+
+      - name: Upload DEB
+        uses: actions/upload-artifact@v4
+        with:
+          name: StopShortcutsNotifications-Rootless
+          path: packages/*.deb
